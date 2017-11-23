@@ -1,3 +1,9 @@
+*.sublime-project
+*.sublime-workspace
+*.gcno
+*.gcda
+git-commit.bat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

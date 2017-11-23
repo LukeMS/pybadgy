@@ -1,0 +1,6 @@
+# Include the license file
+include LICENS*
+include *.txt
+
+# Include the data files
+recursive-include pybadgy/templates *
