@@ -7,13 +7,14 @@ from __future__ import (print_function, division, absolute_import,
 import argparse
 import os
 import pkg_resources
+import re
 import sys
 
 
 __version__ = '0.1.0'
 
 EXAMPLE = """example: pybadgy -f -o badge.svg -t coverage -v 100"""
-
+DOXY_COVERAGE_PATTERN = "(?P<value>\d+)% ?API.+"
 DEFAULT_COLOR = '#a4a61d'
 COLORS = {
     'brightgreen': '#4c1',
@@ -60,6 +61,31 @@ def get_badge(string="string", total=100, color=DEFAULT_COLOR):
         '{{ string }}', string)
 
 
+def get_badge2(label, value, color=DEFAULT_COLOR):
+    """Read the SVG template from the package and write custom fields.
+
+    Return SVG as a string.
+    """
+    template_path = os.path.join('templates', 'custom.svg')
+    template = pkg_resources.resource_string(__name__, template_path).decode(
+        'utf8')
+    w0 = (len(label) - 1) * 8
+    w1 = (len(value) + 1) * 8
+    for (src, dest) in (
+        ("{{w0+w1}}", w0 + w1),
+        ("{{w0}}", w0),
+        ("{{w1}}", w1),
+        ("{{(w0+w1/2-1)*10}}", (w0 + (w1 / 2)) * 10),
+        ("{{(((w0)/2)+1)*10}}", ((w0 / 2)) * 10),
+        ("{{label}}", label),
+        ("{{value}}", value),
+        ("{{c1}}", "#555"),  # or #555
+        ("{{c2}}", color),  # or #4c1
+    ):
+        template = template.replace(src, str(dest))
+    return template
+
+
 def parse_args(argv=None):
     """Parse the command line arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -76,6 +102,8 @@ def parse_args(argv=None):
                         help='Show version.')
     parser.add_argument('-t', '--text', dest='text',
                         help='Text/label to write on the badge.')
+    parser.add_argument('--doxy', dest='doxy',
+                        help='Parse the given givendoxy-coverage file.')
 
     # If arguments have been passed in, use them.
     if argv:
@@ -110,17 +138,40 @@ def save_badge(badge, filepath, force=False):
     return path
 
 
+def doxy_coverage_badge(filepath):
+    """..."""
+    with open(filepath) as f:
+        linelist = f.readlines()
+
+    text = "doxy-coverage"
+
+    for l in reversed(linelist):
+        match = re.match(DOXY_COVERAGE_PATTERN, l)
+        if match:
+            value = int(match.group('value'))
+            break
+
+    print("{}: {}%".format(text, value))
+
+    return text, value
+
+
 def main(argv=None):
     """Console scripts entry point."""
     args = parse_args(argv)
 
-    total = '{0:.0f}'.format(args.value)
-
-    color = DEFAULT_COLOR if args.plain_color else get_color(total)
-    badge = get_badge(
-        args.text,
-        total,
-        color)
+    # Show or save output
+    if args.doxy:
+        text, value = doxy_coverage_badge(args.doxy)
+        value = '{0:.0f}'.format(value)
+        color = DEFAULT_COLOR if args.plain_color else get_color(value)
+        percent = '{0}%'.format(value)
+        badge = get_badge2(text, percent, color)
+    else:
+        text = args.text
+        total = '{0:.0f}'.format(args.value)
+        color = DEFAULT_COLOR if args.plain_color else get_color(total)
+        badge = get_badge(text, total, color)
 
     # Show or save output
     if args.filepath:

@@ -46,10 +46,11 @@ Do that offline, using a continuous integration services, whatever. The followin
 .. _custom_badge3: https://lukems.github.io/pybadgy/badge3.svg
 .. _Travis: https://travis-ci.org
 
-This looks like...
-*******************
+Inspiration & sources
+**********************
 
-This is heavily based on `coverage-badge`_ (`copyright notice`_), including most of its code (with modifications). Thanks, Danilo Bargen!
+pybadgy started as a modified version of `coverage-badge`_ (`copyright notice`_), and probably still carries many lines of it's code. Thanks, Danilo Bargen!
+The svg templates themselves are from shields.io.
 
 .. _`coverage-badge`: https://github.com/dbrgn/coverage-badge
 .. _`copyright notice`: LICENSE-coverage-badge
@@ -70,6 +71,8 @@ But other tools already do that...
 
 Specific tools like `lcov2badge`_ also have requirements that prevent their use on static web servers like Github Pages.
 
+shields.io can be used online and currently does a better job then pybadgy. But pybadgy can create badges offline.
+
 .. _`openBadge`: https://github.com/lmarkus/openBadge
 .. _`lcov2badge`: https://github.com/albanm/lcov2badge
 
@@ -78,5 +81,5 @@ TODO
 
  * Support different value formats (only % so far);
  * Support different templates;
- * Include a few parsers (lcov and doxy-coverage comes to mind).
+ * Include lcov parser;
  * Deploy wheel to pypi for proper pip installation.
